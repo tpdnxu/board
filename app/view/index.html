@@ -1,0 +1,177 @@
+{% extends "./base/base.html" %}
+{% block title %}EGG留言版{% endblock %}
+{% block head %}
+<!-- tailwindcss -->
+<link rel="stylesheet" href="public/css/tailwind.css">
+<!-- jQuery 3.6.0 -->
+<script src="public/js/jquery.min.js"></script>
+<!-- jQuery Modal -->
+<script src="public/js/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="public/css/jquery.modal.min.css" />    
+<style>
+    div.modal{
+        width: 70%;
+        max-width: none;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="container mx-auto px-20 mt-8">
+    <h1 class="text-3xl text-blue-500 mb-6">EGG留言版</h1>
+    {% for msg in msgs %}
+        <section class="pb-4 border-b-2 border-t-slate-200">
+            <p class="my-2">
+                <span class="px-1">
+                    <span class="text-black">{{msg.name}}</span>
+                    <a href="mailto:{{msg.email}}" class=" text-gray-500 hover:text-blue-600">
+                        ({{msg.email}})
+                    </a>
+                </span>於
+                <span class="text-gray-400 px-1">{{msg.created.toLocaleString()}}</span>發表留言
+                <span class="float-right">
+                    <a href="#view{{msg.id}}" class="text-green-500 hover:text-green-600" rel="modal:open">檢視</a> |
+                    <a href="#edit{{msg.id}}" class="text-yellow-500 hover:text-yellow-600" rel="modal:open">編輯</a> |
+                    <a href="#" class="text-red-500 hover:text-red-700" data-id="{{msg.id}}" data-method="delete">刪除</a>
+                    <form id="form{{msg.id}}" action="/message/{{msg.id}}" method="post">
+                        <input type="hidden" name="_method" value="delete">
+                    </form>
+                </span>                    
+            </p>
+            <p class="bg-stone-200 p-4 rounded">
+                <span>{{msg.message}}</span>
+            </p>
+        </section>
+        <!-- 檢視留言Modal -->
+        <div id="view{{msg.id}}" class="modal">
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="w-full px-3">
+                    <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="name">
+                        留言者姓名
+                    </label>
+                    <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="name" type="text" disabled="disabled" value="{{msg.name}}">
+                </div>
+            </div>
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="w-full px-3">
+                    <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="email">
+                        留言者信箱
+                    </label>
+                    <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="email" type="email" disabled="disabled" value="{{msg.email}}">
+                </div>
+            </div>
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="w-full px-3">
+                    <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="message">
+                        留言者內容
+                    </label>
+                    <textarea class="block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="message" disabled="disabled" rows="5">
+                        {{msg.message.trim()}}
+                    </textarea>
+                </div>
+            </div>                    
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="w-full px-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="created">
+                        留言時間
+                    </label>
+                    <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="created" type="text" disabled="disabled" value="{{msg.created.toLocaleString()}}">
+              </div>
+            </div>
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="w-full px-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="updated">
+                        更新時間
+                    </label>
+                    <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="updated" type="text" disabled="disabled" value="{{msg.updated.toLocaleString()}}">
+              </div>
+            </div>
+        </div>
+        <!-- 編輯留言Modal -->
+        <div id="edit{{msg.id}}" class="modal">
+            <form class="w-full" action="/message/{{msg.id}}" method="POST">
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="name">
+                            留言者姓名
+                        </label>
+                        <input id="name" name="name" type="text" value="{{msg.name}}" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    </div>
+                </div>
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="email">
+                            留言者信箱
+                        </label>
+                        <input id="email" name="email" type="email" value="{{msg.email}}" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    </div>
+                </div>
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="message">
+                            留言者內容
+                        </label>
+                        <textarea id="message" name="message" rows="5" class="block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            {{msg.message}}
+                        </textarea>
+                    </div>
+                </div>                    
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="created">
+                            留言時間
+                        </label>
+                        <input class="appearance-none block w-full bg-gray-200 text-white border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="created" type="text" disabled="disabled" value="{{msg.created.toLocaleString()}}">
+                  </div>
+                </div>
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="updated">
+                            更新時間
+                        </label>
+                        <input class="appearance-none block w-full bg-gray-200 text-white border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="updated" type="text" disabled="disabled" value="{{msg.updated.toLocaleString()}}">
+                  </div>
+                </div>
+                <div>
+                    <input type="hidden" name="_method" value="patch">
+                    <button type="submit" class="w-full shadow bg-blue-500 hover:bg-blue-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded">
+                        更新
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endfor %}
+</div>
+<div class="container mx-auto px-20 mt-10">
+    <h1 class="text-3xl text-blue-500">請留下您的訊息</h1>
+    <form class="mt-4" action="/message" method="POST">
+        <div class="relative z-0 w-full mb-6 group bg-slate-100">
+            <input type="text" name="name" id="name" class="block py-2.5 px-2 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required="">
+            <label for="name" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 px-2">姓名</label>
+        </div>            
+        <div class="relative z-0 w-full mb-6 group bg-slate-100">
+            <input type="email" name="email" id="email" class="block py-2.5 px-2 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required="">
+            <label for="email" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 px-2">信箱</label>
+        </div>
+        <div class="relative z-0 w-full mb-6 group bg-slate-100">
+            <input type="text" name="message" id="message" class="block py-2.5 px-2 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" ">
+            <label for="message" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 px-2">訊息</label>
+        </div>
+        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">送出留言</button>
+    </form>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    $(function() {
+        // 刪除留言
+        $('[data-method="delete"]').click(function() {
+            let id=$(this).attr('data-id');
+            var isdel=confirm('是否刪除留言?');
+            if(isdel){
+                let formid='#form'+id;
+                $(formid).submit();
+            }
+        });
+    });
+</script>
+{% endblock %}
