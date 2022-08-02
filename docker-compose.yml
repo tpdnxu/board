@@ -42,7 +42,7 @@ services:
       - board:127.0.0.1
     ports:
       - 80:7001 
-    command: ["npm", "run", "dev"]
+    command: ["sh", "-c", "npx sequelize db:migrate | npm run dev"]
 
 networks:
   mynet:
