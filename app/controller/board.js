@@ -6,13 +6,41 @@ class BoardController extends Controller {
     // 檢視留言
     async index() {
         const ctx = this.ctx;
-        let count = 10;
+        // 分頁處理
+        let curpage =  Number(this.ctx.query.page) || 1;
+        if(curpage < 1){
+            curpage = 1;
+            ctx.status = 201;
+            ctx.redirect('/message');
+        }
+        // 每頁顯示的留言數
+        let pagesize = 2;
+        // 總留言數
+        let rows = await ctx.model.Message.count({}) || 1;    
+        // 總頁數
+        let pages = Math.ceil(rows / pagesize);
+        if(curpage > pages){
+            curpage = pages;
+            ctx.status = 201;
+            ctx.redirect('/message?page='+pages);
+        }        
+        // 從第幾筆開始取資料
+        let offset = (curpage - 1) * pagesize;        
         let msgs = await ctx.model.Message.findAll({
-            limit: count,
-            offset: 0,
+            order: [
+                ['id','DESC']
+            ],
+            offset: offset,
+            limit: pagesize,
         });
         await ctx.render('index.html', {
-            msgs: msgs
+            msgs: msgs,
+            pagination: {
+                pagesize: pagesize,
+                curpage: curpage,
+                rows: rows,
+                pages: pages,
+            }
         });
     }
     // 新增留言
