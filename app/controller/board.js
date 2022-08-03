@@ -6,42 +6,39 @@ class BoardController extends Controller {
     // 檢視留言
     async index() {
         const ctx = this.ctx;
-        // 分頁處理
-        let curpage =  Number(this.ctx.query.page) || 1;
-        if(curpage < 1){
-            curpage = 1;
-            ctx.status = 201;
-            ctx.redirect('/message');
+        // 當前頁面若未設定則預設為第1頁
+        let curPage = Number(this.ctx.query.page) || 1;
+        if(curPage < 1){
+            curPage = 1;
         }
         // 每頁顯示的留言數
-        let pagesize = 2;
+        let pageSize = 2;
         // 總留言數
-        let rows = await ctx.model.Message.count({}) || 1;    
+        let rows = await ctx.model.Message.count({});
         // 總頁數
-        let pages = Math.ceil(rows / pagesize);
-        if(curpage > pages){
-            curpage = pages;
-            ctx.status = 201;
-            ctx.redirect('/message?page='+pages);
-        }        
+        let pages = Math.ceil(rows / pageSize);
+        if(pages > 0 && curPage > pages){
+            curPage = pages;
+        }
         // 從第幾筆開始取資料
-        let offset = (curpage - 1) * pagesize;        
+        let offset = (curPage - 1) * pageSize;
+        // 取出留言
         let msgs = await ctx.model.Message.findAll({
             order: [
-                ['id','DESC']
+                ['id', 'desc']
             ],
             offset: offset,
-            limit: pagesize,
+            limit: pageSize,
         });
         await ctx.render('index.html', {
             msgs: msgs,
             pagination: {
-                pagesize: pagesize,
-                curpage: curpage,
+                pageSize: pageSize,
+                curPage: curPage,
                 rows: rows,
                 pages: pages,
             }
-        });
+        });        
     }
     // 新增留言
     async create() {
