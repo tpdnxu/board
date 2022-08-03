@@ -2,10 +2,6 @@
 
 /** @type Egg.EggPlugin */
 module.exports = {
-  // had enabled by egg
-  // static: {
-  //   enable: true,
-  // }
   sequelize: {
     enable: true,
     package: 'egg-sequelize',
@@ -21,5 +17,9 @@ module.exports = {
   redis: {
     enable: true,
     package: 'egg-redis',
+  },
+  captcha: {
+    enable: true,
+    package: 'svg-captcha',
   },
 };

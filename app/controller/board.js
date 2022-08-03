@@ -1,6 +1,7 @@
 'use strict';
 
-const Controller=require('egg').Controller;
+const Controller = require('egg').Controller;
+const svgCaptcha = require('svg-captcha'); 
 
 class BoardController extends Controller {
     // 檢視留言
@@ -43,10 +44,18 @@ class BoardController extends Controller {
     // 新增留言
     async create() {
         const ctx = this.ctx;
-        const {name, email, message} = ctx.request.body;
-        const rec = await ctx.model.Message.create({name, email, message});
-        ctx.status = 201;
-        ctx.redirect('/message');
+        const {name, email, message, captcha} = ctx.request.body;
+        let verify = ctx.session.captcha;
+        ctx.body = verify;
+        if(captcha === verify){
+            const rec = await ctx.model.Message.create({name, email, message});
+            ctx.status = 201;
+            ctx.redirect('/message');
+        }else{
+            ctx.body = {
+                err: '驗證碼錯誤',
+            };
+        }
     }
     // 檢視特定留言
     async show() {
@@ -88,6 +97,23 @@ class BoardController extends Controller {
         await msg.destroy();
         ctx.status = 204;
         ctx.redirect('/message');
+    }
+    // 取得驗證碼圖片
+    async captcha() {
+        const ctx = this.ctx;
+        const captcha = svgCaptcha.createMathExpr({
+            size: 4,
+            fontSize: 50,
+            ignoreChars: '0Ol',
+            width: 120,
+            height: 40,
+            noise: Math.floor(Math.random() * 5),
+            color: true,
+            background: '#999999',
+        });
+        ctx.session.captcha = captcha.text;
+        ctx.response.type = 'image/svg+xml';
+        ctx.body = captcha.data;
     }
 }
 
