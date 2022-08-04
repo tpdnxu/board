@@ -44,11 +44,11 @@ class BoardController extends Controller {
     // 新增留言
     async create() {
         const ctx = this.ctx;
-        const {name, email, message, captcha} = ctx.request.body;
+        const { name, email, message, captcha } = ctx.request.body;
         let verify = ctx.session.captcha;
         ctx.body = verify;
         if(captcha === verify){
-            const rec = await ctx.model.Message.create({name, email, message});
+            const rec = await ctx.model.Message.create({ name, email, message });
             ctx.status = 201;
             ctx.redirect('/message');
         }else{
