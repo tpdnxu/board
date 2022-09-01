@@ -140,8 +140,36 @@
             </form>
         </div>
     {% endfor %}
+    <!-- 分頁 -->
+    {% if pagination.rows > 0 %}
+    <div class="container mx-auto mt-6">
+        <div class="flex justify-end">
+            {% if pagination.curPage > 1 %}
+            <a href="?page={{ pagination.curPage - 1 }}" class="px-4 py-2 mx-1 text-gray-500 bg-stone-200 rounded-md hover:bg-blue-400 hover:text-white">
+                Prev
+            </a>
+            {% endif %}
+            {% for i in range(0, pagination.pages) %}
+                {% if pagination.curPage == i + 1 %}
+                <a href="javascript:void();" class="px-4 py-2 mx-1 text-gray-500 bg-gray-100 rounded-md">
+                    {{ i + 1 }}
+                </a>
+                {% else %}            
+                <a href="?page={{ i + 1 }}" class="px-4 py-2 mx-1 text-gray-700 bg-stone-200 rounded-md hover:bg-blue-400 hover:text-white">
+                    {{ i + 1 }}
+                </a>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.curPage < pagination.pages %}
+            <a href="?page={{ pagination.curPage + 1 }}" class="px-4 py-2 mx-1 text-gray-500 bg-stone-200 rounded-md hover:bg-blue-400 hover:text-white">
+                Next
+            </a>
+            {% endif %}
+        </div>  
+    </div>
+    {% endif %}    
 </div>
-<div class="container mx-auto px-20 mt-10">
+<div class="container mx-auto px-20 mt-8">
     <h1 class="text-3xl text-blue-500">請留下您的訊息</h1>
     <form class="mt-4" action="/message" method="POST">
         <div class="relative z-0 w-full mb-6 group bg-slate-100">
@@ -156,6 +184,11 @@
             <input type="text" name="message" id="message" class="block py-2.5 px-2 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" ">
             <label for="message" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 px-2">訊息</label>
         </div>
+        <div class="relative z-0 w-full mb-6 group">
+            <input type="text" name="captcha" id="captcha" class="inline py-2.5 px-2 text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder="驗證碼" required="">
+            <img src="/captcha" alt="驗證碼圖片" title="點擊更換驗證碼圖片" onclick="reCaptcha(this)" class="inline">
+        </div>        
+        <input type="hidden" name="_csrf" value="{{ ctx.csrf }}">
         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">送出留言</button>
     </form>
 </div>
@@ -165,13 +198,16 @@
     $(function() {
         // 刪除留言
         $('[data-method="delete"]').click(function() {
-            let id=$(this).attr('data-id');
-            var isdel=confirm('是否刪除留言?');
+            let id = $(this).attr('data-id');
+            var isdel = confirm('是否刪除留言?');
             if(isdel){
-                let formid='#form'+id;
+                let formid = '#form' + id;
                 $(formid).submit();
             }
         });
     });
+    function reCaptcha(ele){
+        ele.src = ele.src + '?' + Math.random();
+    }
 </script>
 {% endblock %}

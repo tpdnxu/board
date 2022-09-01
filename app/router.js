@@ -11,4 +11,5 @@ module.exports = app => {
   router.get('/message/:id', controller.board.show);
   router.patch('/message/:id', controller.board.update);
   router.delete('/message/:id',controller.board.destroy);
+  router.get('/captcha',controller.board.captcha);
 };
