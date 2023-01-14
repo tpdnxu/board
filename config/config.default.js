@@ -29,8 +29,8 @@ module.exports = appInfo => {
     host: 'mysql8',
     port: '3306',
     user: 'root',
-    password: 'root1234',
-    database: 'board',    
+    password: 'root',
+    database: 'board',
     define: {
       tableName: 'messages',
       timestamps: true,
